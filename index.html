@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Posture Pal</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="initial-message" class="message-box">
+      안녕하세요! Posture Pal이 당신의 자세를 감지하기 시작합니다.<br />바른
+      자세를 유지해주세요!
+    </div>
+    <div id="baseline-set-message" class="message-box">
+      기준 자세가 재설정되었습니다!
+    </div>
+    <img id="character" src="character.gif" alt="character">
+    <script>
+      const character = document.getElementById("character");
+      const initialMessageBox = document.getElementById("initial-message");
+      const baselineSetMessageBox = document.getElementById(
+        "baseline-set-message"
+      );
+
+      // UI 요소에 마우스가 올라가면 클릭 가능하게, 나가면 다시 클릭 무시 상태로 변경
+      character.addEventListener("mouseenter", () => {
+        window.electronAPI.setIgnoreMouseEvents(false);
+      });
+      character.addEventListener("mouseleave", () => {
+        window.electronAPI.setIgnoreMouseEvents(true);
+      });
+
+      initialMessageBox.addEventListener("mouseenter", () => {
+        window.electronAPI.setIgnoreMouseEvents(false);
+      });
+      initialMessageBox.addEventListener("mouseleave", () => {
+        window.electronAPI.setIgnoreMouseEvents(true);
+      });
+
+      baselineSetMessageBox.addEventListener("mouseenter", () => {
+        window.electronAPI.setIgnoreMouseEvents(false);
+      });
+      baselineSetMessageBox.addEventListener("mouseleave", () => {
+        window.electronAPI.setIgnoreMouseEvents(true);
+      });
+
+      window.electronAPI.onPostureAlert(() => {
+        console.log("Posture alert received!");
+        character.classList.add("animate");
+
+        // 애니메이션이 끝난 후 클래스 제거 및 창 숨김 신호 전송
+        setTimeout(() => {
+          character.classList.remove("animate");
+          window.electronAPI.animationFinished(); // 애니메이션 종료 신호 전송
+        }, 2000); // 2초 후 제거 (CSS 애니메이션 시간보다 길게 설정)
+      });
+
+      window.electronAPI.onInitialMessage(() => {
+        console.log("Initial message received!");
+        initialMessageBox.classList.add("show");
+        setTimeout(() => {
+          initialMessageBox.classList.remove("show");
+          window.electronAPI.animationFinished(); // 메시지 사라진 후 창 숨김 신호 전송
+        }, 5000); // 5초 후 메시지 사라지도록 설정
+      });
+
+      window.electronAPI.onBaselineSetMessage(() => {
+        console.log("Baseline set message received!");
+        baselineSetMessageBox.classList.add("show");
+        setTimeout(() => {
+          baselineSetMessageBox.classList.remove("show");
+          window.electronAPI.animationFinished(); // 메시지 사라진 후 창 숨김 신호 전송
+        }, 5000); // 5초 후 메시지 사라지도록 설정
+      });
+    </script>
+  </body>
+</html>
